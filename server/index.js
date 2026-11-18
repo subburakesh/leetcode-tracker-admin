@@ -6,6 +6,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import adminRouter from "./routes/adminRoute.js";
 import studentRouter from "./routes/studentRoute.js";
+import dashboardRouter from "./routes/dashboardRoute.js";
 
 // configuring the environmental variables
 dotenv.config();
@@ -45,3 +46,4 @@ createInstance();
 app.use("/api/admin", adminRouter);
 app.use("/api/auth", adminRouter);
 app.use("/api/students", studentRouter);
+app.use("/api/dashboard", dashboardRouter);
