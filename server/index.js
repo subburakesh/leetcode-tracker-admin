@@ -1,21 +1,30 @@
 import express from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import mongoose from "mongoose";
 import adminRouter from "./routes/adminRoute.js";
-
-
-// creating the instance of the expressjs application server.
-const app = express();
-app.use(bodyParser.json());
+import studentRouter from "./routes/studentRoute.js";
 
 // configuring the environmental variables
 dotenv.config();
 
+// creating the instance of the expressjs application server.
+const app = express();
+
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
+app.use(bodyParser.json());
+
 // importing the environmental variables
 const PORT = process.env.PORT || 8080;
 const MONGODB_URI = process.env.MONGODB_URI;
-
 
 // creating the database instance and initializing the expressjs server.
 const createInstance = () => {
@@ -34,3 +43,5 @@ const createInstance = () => {
 createInstance();
 
 app.use("/api/admin", adminRouter);
+app.use("/api/auth", adminRouter);
+app.use("/api/students", studentRouter);

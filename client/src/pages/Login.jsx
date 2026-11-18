@@ -34,6 +34,10 @@ export default function Login({ onLogin }) {
         return;
       }
 
+      if (data.token) {
+        localStorage.setItem("admin_token", data.token);
+      }
+
       onLogin(data.user);
 
     } catch (error) {

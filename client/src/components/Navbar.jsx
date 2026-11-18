@@ -8,6 +8,7 @@ export default function Navbar({ user, onLogout }) {
 
   async function handleLogout() {
     try {
+      localStorage.removeItem("admin_token");
       const response = await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include"
@@ -21,7 +22,8 @@ export default function Navbar({ user, onLogout }) {
 
     } catch (error) {
       console.error(error);
-      alert("Unable to logout. Please try again.");
+      localStorage.removeItem("admin_token");
+      onLogout();
     }
   }
 

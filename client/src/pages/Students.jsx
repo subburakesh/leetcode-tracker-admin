@@ -58,6 +58,15 @@ export default function Students() {
     }
   }, [successMessage]);
 
+  function getAuthHeaders(extra = {}) {
+    const token = localStorage.getItem("admin_token");
+    const headers = { ...extra };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    return headers;
+  }
+
   async function fetchStudents() {
     setLoading(true);
     setError("");
@@ -68,7 +77,10 @@ export default function Students() {
       if (search.trim()) queryParams.append("search", search.trim());
 
       const url = `/api/students${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
-      const response = await fetch(url, { credentials: "include" });
+      const response = await fetch(url, {
+        headers: getAuthHeaders(),
+        credentials: "include",
+      });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -168,7 +180,7 @@ export default function Students() {
 
       const response = await fetch("/api/students", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify(payload),
       });
@@ -207,7 +219,7 @@ export default function Students() {
 
       const response = await fetch(`/api/students/${selectedStudent._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify(payload),
       });
@@ -243,7 +255,7 @@ export default function Students() {
 
       const response = await fetch(`/api/students/${student._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         credentials: "include",
         body: JSON.stringify(payload),
       });
@@ -270,6 +282,7 @@ export default function Students() {
     try {
       const response = await fetch(`/api/students/${selectedStudent._id}`, {
         method: "DELETE",
+        headers: getAuthHeaders(),
         credentials: "include",
       });
 

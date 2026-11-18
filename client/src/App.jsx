@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import Login from "./pages/Login";
-import DashboardLayout from "./layouts/DashboardLayout";
+import DashboardLayout from "./layout/DashboardLayout";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -9,7 +9,13 @@ export default function App() {
 
   async function checkAuthentication() {
     try {
+      const token = localStorage.getItem("admin_token");
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
       const response = await fetch("/api/auth/me", {
+        headers,
         credentials: "include"
       });
 
