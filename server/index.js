@@ -27,23 +27,42 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 8080;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// creating the database instance and initializing the expressjs server.
-const createInstance = () => {
-  mongoose
-    .connect(MONGODB_URI)
-    .then(() => {
-      console.log("Mongo DB connection was successfully initialized.");
-      app.listen(PORT, () => {
-        console.log(`Server is running at the port ${PORT}`);
-      });
-    })
-    .catch((error) => console.log(error));
+// Database connection helper with connection caching for serverless/local environments
+let isConnected = false;
+export const connectDB = async () => {
+  if (isConnected || mongoose.connection.readyState === 1) {
+    isConnected = true;
+    return;
+  }
+  try {
+    await mongoose.connect(MONGODB_URI);
+    isConnected = true;
+    console.log("Mongo DB connection was successfully initialized.");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+  }
 };
 
-// calling the create instance function to create the database and server instance
-createInstance();
+// Middleware to ensure DB connection is ready before processing requests
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    await connectDB();
+  }
+  next();
+});
 
 app.use("/api/admin", adminRouter);
 app.use("/api/auth", adminRouter);
 app.use("/api/students", studentRouter);
 app.use("/api/dashboard", dashboardRouter);
+
+// Start server locally (when not running in Vercel serverless environment)
+if (!process.env.VERCEL) {
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running at the port ${PORT}`);
+    });
+  });
+}
+
+export default app;
